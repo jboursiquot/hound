@@ -13,7 +13,7 @@ class BuildRunner
 
       build.update!(violations: find_violations)
 
-      BuildReportJob.perform_later(build)
+      BuildReport.run(build)
     end
   rescue RepoConfig::ParserError
     create_config_error_status

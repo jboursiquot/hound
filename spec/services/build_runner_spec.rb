@@ -32,11 +32,11 @@ describe BuildRunner, '#run' do
       stubbed_github_api
       stubbed_pull_request
       stubbed_style_checker_with_violations
-      allow(BuildReportJob).to receive(:perform_later)
+      allow(BuildReport).to receive(:run)
 
       build_runner.run
 
-      expect(BuildReportJob).to have_received(:perform_later).with(Build.last)
+      expect(BuildReport).to have_received(:run).with(Build.last)
     end
 
     it 'initializes StyleChecker with modified files and config' do

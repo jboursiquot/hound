@@ -1,18 +1,17 @@
-class BuildReportJob < ApplicationJob
+require "attr_extras"
+
+class BuildReport
   MAX_COMMENTS = ENV.fetch("MAX_COMMENTS").to_i
 
-  queue_as :medium
+  static_facade :run, :build
 
-  def perform(build)
-    @build = build
+  def run
     commenter.comment_on_violations(priority_violations)
     create_success_status
     track_subscribed_build_completed
   end
 
   private
-
-  attr_reader :build
 
   def commenter
     Commenter.new(payload)
@@ -48,7 +47,7 @@ class BuildReportJob < ApplicationJob
     github.create_success_status(
       payload.full_repo_name,
       payload.head_sha,
-      I18n.t(:success_status, count: violation_count)
+      I18n.t(:success_status, count: violation_count),
     )
   end
 

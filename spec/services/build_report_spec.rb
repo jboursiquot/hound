@@ -1,30 +1,30 @@
 require "rails_helper"
 
-describe BuildReportJob, "#perform" do
+describe BuildReport, ".run" do
   context "when build has violations" do
     it "comments on violations" do
       build = create(:build, :failed)
       commenter = stubbed_commenter
       stubbed_github_api
 
-      BuildReportJob.new.perform(build)
+      BuildReport.run(build)
 
       expect(commenter).to have_received(:comment_on_violations).
         with(build.violations)
     end
 
     it "comments a maximum number of times" do
-      stub_const("::BuildReportJob::MAX_COMMENTS", 1)
+      stub_const("::BuildReport::MAX_COMMENTS", 1)
       commenter = double("Commenter", comment_on_violations: true)
       allow(Commenter).to receive(:new).and_return(commenter)
       build = create(:build, violations: build_list(:violation, 2))
       commenter = stubbed_commenter
       stubbed_github_api
 
-      BuildReportJob.new.perform(build)
+      BuildReport.run(build)
 
       expect(commenter).to have_received(:comment_on_violations).
-        with(build.violations.take(BuildReportJob::MAX_COMMENTS))
+        with(build.violations.take(BuildReport::MAX_COMMENTS))
     end
 
     it "creates GitHub statuses" do
@@ -41,7 +41,7 @@ describe BuildReportJob, "#perform" do
       stubbed_commenter
       github_api = stubbed_github_api
 
-      BuildReportJob.new.perform(build)
+      BuildReport.run(build)
 
       expect(github_api).to have_received(:create_success_status).with(
         "test/repo",
@@ -60,7 +60,7 @@ describe BuildReportJob, "#perform" do
       stubbed_pull_request
       stubbed_github_api
 
-      BuildReportJob.new.perform(build)
+      BuildReport.run(build)
 
       expect(analytics).to have_tracked("Build Completed").
         for_user(repo.subscription.user).

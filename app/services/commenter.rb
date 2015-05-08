@@ -15,8 +15,4 @@ class Commenter
   def commenting_policy
     @commenting_policy ||= CommentingPolicy.new(pull_request)
   end
-
-  def token
-    ENV["HOUND_GITHUB_TOKEN"]
-  end
 end

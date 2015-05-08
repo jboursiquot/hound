@@ -9,7 +9,6 @@ describe Commenter do
         it "comments on the violation" do
           pull_request = double(:pull_request, comment_on_violation: nil)
           violation = double(:violation)
-          payload = Payload.new({})
           commenter = Commenter.new(pull_request)
           policy = double(:commenting_policy, allowed_for?: true)
           allow(CommentingPolicy).to receive(:new).and_return(policy)

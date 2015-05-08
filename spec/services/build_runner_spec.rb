@@ -30,13 +30,13 @@ describe BuildRunner, '#run' do
     it 'comments on violations' do
       build_runner = make_build_runner
       stubbed_github_api
-      stubbed_pull_request
+      pull_request = stubbed_pull_request
       stubbed_style_checker_with_violations
       allow(BuildReport).to receive(:run)
 
       build_runner.run
 
-      expect(BuildReport).to have_received(:run).with(Build.last)
+      expect(BuildReport).to have_received(:run).with(pull_request, Build.last)
     end
 
     it 'initializes StyleChecker with modified files and config' do
@@ -232,11 +232,17 @@ describe BuildRunner, '#run' do
   end
 
   def stubbed_pull_request
+    head_commit = double(
+      "HeadCommit",
+      sha: "headsha",
+      repo_name: "test/repo",
+    )
     pull_request = double(
       :pull_request,
       pull_request_files: [double(:file)],
       config: double(:config),
-      opened?: true
+      opened?: true,
+      head_commit: head_commit,
     )
     allow(PullRequest).to receive(:new).and_return(pull_request)
 

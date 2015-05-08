@@ -3,7 +3,7 @@ require "attr_extras"
 class BuildReport
   MAX_COMMENTS = ENV.fetch("MAX_COMMENTS").to_i
 
-  static_facade :run, :build
+  static_facade :run, :pull_request, :build
 
   def run
     commenter.comment_on_violations(priority_violations)
@@ -14,21 +14,7 @@ class BuildReport
   private
 
   def commenter
-    Commenter.new(payload)
-  end
-
-  def payload
-    Payload.new(
-      "number" => build.pull_request_number,
-      "pull_request" => {
-        "head" => {
-          "sha" => build.commit_sha,
-        },
-      },
-      "repository" => {
-        "full_name" => build.repo.full_github_name,
-      },
-    )
+    Commenter.new(pull_request)
   end
 
   def token
@@ -45,8 +31,8 @@ class BuildReport
 
   def create_success_status
     github.create_success_status(
-      payload.full_repo_name,
-      payload.head_sha,
+      pull_request.head_commit.repo_name,
+      pull_request.head_commit.sha,
       I18n.t(:success_status, count: violation_count),
     )
   end

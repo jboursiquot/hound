@@ -8,19 +8,14 @@ describe Commenter do
       context "with a violation" do
         it "comments on the violation" do
           pull_request = double(:pull_request, comment_on_violation: nil)
-          allow(PullRequest).to receive(:new).and_return(pull_request)
           violation = double(:violation)
           payload = Payload.new({})
-          commenter = Commenter.new(payload)
+          commenter = Commenter.new(pull_request)
           policy = double(:commenting_policy, allowed_for?: true)
           allow(CommentingPolicy).to receive(:new).and_return(policy)
 
           commenter.comment_on_violations([violation])
 
-          expect(PullRequest).to have_received(:new).with(
-            payload,
-            ENV["HOUND_GITHUB_TOKEN"],
-          )
           expect(pull_request).to have_received(:comment_on_violation).
             with(violation)
         end

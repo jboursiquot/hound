@@ -12,7 +12,7 @@ class BuildRunner
         violations: violations,
       )
 
-      BuildReport.run(build)
+      BuildReport.run(pull_request, build)
     end
   rescue RepoConfig::ParserError
     create_config_error_status

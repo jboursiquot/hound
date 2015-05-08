@@ -9,9 +9,8 @@ class BuildRunner
       build = repo.builds.create!(
         pull_request_number: payload.pull_request_number,
         commit_sha: payload.head_sha,
+        violations: violations,
       )
-
-      build.update!(violations: find_violations)
 
       BuildReport.run(build)
     end
@@ -25,7 +24,7 @@ class BuildRunner
     pull_request.opened? || pull_request.synchronize?
   end
 
-  def find_violations
+  def violations
     @violations ||= style_checker.violations
   end
 
@@ -47,8 +46,10 @@ class BuildRunner
   end
 
   def repo
-    @repo ||= Repo.active.
-      find_and_update(payload.github_repo_id, payload.full_repo_name)
+    @repo ||= Repo.active.find_and_update(
+      payload.github_repo_id,
+      payload.full_repo_name,
+    )
   end
 
   def track_subscribed_build_started
